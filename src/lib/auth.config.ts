@@ -9,14 +9,14 @@ import type { NextAuthConfig } from "next-auth";
  */
 export const authConfig = {
   pages: {
-    signIn: "/signin",
+    signIn: "/login",
     // signUp is not a built-in Auth.js page, handled via custom route
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnAuthPage =
-        nextUrl.pathname.startsWith("/signin") ||
+        nextUrl.pathname.startsWith("/login") ||
         nextUrl.pathname.startsWith("/signup");
       const isProtectedRoute =
         nextUrl.pathname.startsWith("/messages");

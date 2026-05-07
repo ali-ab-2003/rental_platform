@@ -17,7 +17,7 @@ export const mainNavItems: NavItem[] = [
 ];
 
 export const authNavItems: NavItem[] = [
-  { label: "Sign In", href: "/signin" },
+  { label: "Sign In", href: "/login" },
   { label: "Sign Up", href: "/signup" },
 ];
 

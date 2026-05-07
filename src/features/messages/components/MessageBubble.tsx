@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { MessageWithSender } from "../types";
 import { Text } from "@/components/typography";
 
@@ -11,7 +12,12 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, isMe }: MessageBubbleProps) {
   return (
-    <div className={`flex w-full ${isMe ? "justify-end" : "justify-start"} mb-4`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={`flex w-full ${isMe ? "justify-end" : "justify-start"} mb-4`}
+    >
       <div
         className={`max-w-[70%] px-4 py-3 rounded-2xl shadow-sm text-sm ${
           isMe
@@ -24,7 +30,7 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
             {message.sender.name || "User"}
           </Text>
         )}
-        <Text className="leading-relaxed break-words">{message.content}</Text>
+        <Text className={`leading-relaxed break-words ${isMe ? "text-background" : "text-foreground"}`}>{message.content}</Text>
         <div className="flex justify-end mt-1">
           <Text
             variant="micro"
@@ -37,6 +43,6 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
           </Text>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

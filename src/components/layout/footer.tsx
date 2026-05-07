@@ -5,15 +5,15 @@ import { Text } from "@/components/typography";
 import { footerNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 
+import { Logo } from "@/components/ui/logo";
+
 export function Footer() {
   return (
     <footer className="border-t border-border/40 py-12 md:py-16">
       <Container>
         <Stack gap={8}>
           <Inline justify="between" className="flex-col md:flex-row items-start md:items-center">
-            <span className="font-heading text-xl font-medium tracking-tight mb-4 md:mb-0">
-              {siteConfig.name}
-            </span>
+            <Logo className="mb-4 md:mb-0" />
             <nav className="flex flex-wrap gap-6 text-sm">
               {footerNavItems.map((item) => (
                 <Link

@@ -11,6 +11,7 @@ import { Input } from "@/components/primitives/input";
 import { Button } from "@/components/primitives/button";
 import { Text } from "@/components/typography";
 import { signInAction } from "@/app/actions/auth.actions";
+import { Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -23,6 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const {
@@ -48,7 +50,7 @@ export function LoginForm() {
       });
 
       if (result.success) {
-        router.push("/messages");
+        router.push("/");
         router.refresh();
       } else {
         setError(result.error || "Invalid email or password");
@@ -100,12 +102,25 @@ export function LoginForm() {
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              {...register("password")}
-              className={errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <Text variant="micro" className="text-red-500">{errors.password.message}</Text>
             )}

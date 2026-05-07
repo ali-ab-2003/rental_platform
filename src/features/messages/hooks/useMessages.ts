@@ -9,7 +9,7 @@ export function useMessages(conversationId: string) {
   return useInfiniteQuery<MessageThreadResponse, Error>({
     queryKey: ["messages", conversationId],
     queryFn: async ({ pageParam = "" }) => {
-      const res = await fetch(`/api/conversations/${conversationId}/messages?cursor=${pageParam}`);
+      const res = await fetch(`/api/messages?conversationId=${conversationId}&cursor=${pageParam}`);
       if (!res.ok) throw new Error("Failed to fetch messages");
       return res.json();
     },
@@ -28,10 +28,10 @@ export function useSendMessage(conversationId: string) {
 
   return useMutation({
     mutationFn: async (content: string) => {
-      const res = await fetch(`/api/conversations/${conversationId}/messages`, {
+      const res = await fetch(`/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ conversationId, content }),
       });
       if (!res.ok) throw new Error("Failed to send message");
       return res.json() as Promise<MessageWithSender>;

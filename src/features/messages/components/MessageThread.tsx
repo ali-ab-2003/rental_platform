@@ -32,10 +32,15 @@ export function MessageThread({ conversationId }: MessageThreadProps) {
 
   if (isLoading || !currentUserId) {
     return (
-      <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-background">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
-            <div className="h-10 w-2/3 bg-muted rounded-2xl animate-pulse" />
+      <div className="flex-1 p-6 space-y-6 overflow-y-auto bg-background">
+        {[
+          { isMe: false, width: "w-2/3", rounded: "rounded-tl-none" },
+          { isMe: true, width: "w-1/2", rounded: "rounded-tr-none" },
+          { isMe: false, width: "w-3/4", rounded: "rounded-tl-none" },
+          { isMe: true, width: "w-1/3", rounded: "rounded-tr-none" },
+        ].map((bubble, i) => (
+          <div key={i} className={`flex w-full ${bubble.isMe ? "justify-end" : "justify-start"}`}>
+            <div className={`h-12 ${bubble.width} bg-muted/60 rounded-2xl ${bubble.rounded} animate-pulse shadow-sm`} />
           </div>
         ))}
       </div>
@@ -50,7 +55,7 @@ export function MessageThread({ conversationId }: MessageThreadProps) {
     );
   }
 
-  const messages = data?.pages.flatMap((page) => page.data).reverse() || [];
+  const messages = data?.pages.flatMap((page: any) => page.data?.items || []).reverse() || [];
 
   if (messages.length === 0) {
     return (

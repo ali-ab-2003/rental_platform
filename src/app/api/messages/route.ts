@@ -23,10 +23,14 @@ export async function GET(request: NextRequest) {
     if (error) return error;
 
     const searchParams = request.nextUrl.searchParams;
+    const conversationIdParam = searchParams.get("conversationId");
+    const cursor = searchParams.get("cursor");
+    const limit = searchParams.get("limit");
+
     const parsed = getMessagesSchema.safeParse({
-      conversationId: searchParams.get("conversationId") ?? undefined,
-      cursor: searchParams.get("cursor") ?? undefined,
-      limit: searchParams.get("limit") ?? undefined,
+      conversationId: conversationIdParam && conversationIdParam !== "" ? conversationIdParam : undefined,
+      cursor: cursor && cursor !== "" ? cursor : undefined,
+      limit: limit && limit !== "" ? limit : undefined,
     });
 
     if (!parsed.success) {

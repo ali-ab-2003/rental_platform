@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Sleek dark background matching luxury editorial theme -->
+  <rect width="32" height="32" rx="6" fill="#0A0A0A" />
+  <!-- Premium white diamond monogram with custom H geometric lines inside -->
+  <path d="M16 4L4 16l12 12 12-12L16 4z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M12 16h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M12 11v10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M20 11v10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -11,6 +11,7 @@ import {
 } from "@/components/primitives";
 import { Heading, Text } from "@/components/typography";
 import { FadeIn, FadeUp } from "@/components/motion";
+import { auth } from "@/lib/auth";
 
 const MOCK_LISTINGS = [
   {
@@ -36,7 +37,10 @@ const MOCK_LISTINGS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className="bg-background">
       {/* 1. HERO SECTION */}
@@ -62,12 +66,20 @@ export default function Home() {
 
                 <FadeUp delay={0.2} className="w-full">
                   <div className="flex flex-row items-center gap-4 pt-4">
-                    <Button size="lg" asChild>
-                      <Link href="/messages">Explore Homes</Link>
-                    </Button>
-                    <Button variant="outline" size="lg" asChild>
-                      <Link href="/login">Sign In</Link>
-                    </Button>
+                    {isLoggedIn ? (
+                      <Button size="lg" asChild>
+                        <Link href="/messages">Go to Messages</Link>
+                      </Button>
+                    ) : (
+                      <>
+                        <Button size="lg" asChild>
+                          <Link href="/messages">Explore Homes</Link>
+                        </Button>
+                        <Button variant="outline" size="lg" asChild>
+                          <Link href="/login">Sign In</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </FadeUp>
               </Stack>

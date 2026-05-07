@@ -22,9 +22,12 @@ export async function GET(request: NextRequest) {
     if (error) return error;
 
     const searchParams = request.nextUrl.searchParams;
+    const cursor = searchParams.get("cursor");
+    const limit = searchParams.get("limit");
+
     const parsed = getConversationsSchema.safeParse({
-      cursor: searchParams.get("cursor") ?? undefined,
-      limit: searchParams.get("limit") ?? undefined,
+      cursor: cursor && cursor !== "" ? cursor : undefined,
+      limit: limit && limit !== "" ? limit : undefined,
     });
 
     if (!parsed.success) {

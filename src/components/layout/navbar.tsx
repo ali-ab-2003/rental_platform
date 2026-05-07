@@ -8,18 +8,24 @@ import { mainNavItems, authNavItems } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
+import { useSession, signOut } from "next-auth/react";
+
+import { Logo } from "@/components/ui/logo";
+
 export function Navbar() {
   const pathname = usePathname();
+  const { status } = useSession();
+  const isLoggedIn = status === "authenticated";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <Container>
         <Inline justify="between" className="h-20">
           {/* Logo */}
-          <Link href="/" className="font-heading text-xl font-medium tracking-tight">
-            {siteConfig.name}
+          <Link href="/">
+            <Logo />
           </Link>
-
+          
           {/* Desktop Navigation */}
           <Inline gap={8} className="hidden md:flex">
             <nav className="flex items-center space-x-8 text-sm font-medium">
@@ -38,12 +44,20 @@ export function Navbar() {
             </nav>
 
             <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-border/40">
-              <Button variant="ghost" asChild>
-                <Link href={authNavItems[0].href}>{authNavItems[0].label}</Link>
-              </Button>
-              <Button asChild>
-                <Link href={authNavItems[1].href}>{authNavItems[1].label}</Link>
-              </Button>
+              {isLoggedIn ? (
+                <Button onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link href={authNavItems[0].href}>{authNavItems[0].label}</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href={authNavItems[1].href}>{authNavItems[1].label}</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </Inline>
 

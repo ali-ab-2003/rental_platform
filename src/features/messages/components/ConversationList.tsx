@@ -45,7 +45,10 @@ export function ConversationList() {
     );
   }
 
-  const conversations = data?.pages.flatMap((page) => page.data) || [];
+  const rawConversations = data?.pages.flatMap((page: any) => page.data?.items || []) || [];
+  const conversations = rawConversations.filter(
+    (conv, index, self) => self.findIndex((c) => c.id === conv.id) === index
+  );
 
   if (conversations.length === 0) {
     return (

@@ -11,6 +11,7 @@ import { Input } from "@/components/primitives/input";
 import { Button } from "@/components/primitives/button";
 import { Text } from "@/components/typography";
 import { signUpAction } from "@/app/actions/auth.actions";
+import { Eye, EyeOff } from "lucide-react";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -27,6 +28,8 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const {
@@ -54,7 +57,7 @@ export function SignupForm() {
       });
 
       if (result.success) {
-        router.push("/messages");
+        router.push("/");
         router.refresh();
       } else {
         setError(result.error || "An error occurred during sign up.");
@@ -116,12 +119,25 @@ export function SignupForm() {
             <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Password
             </label>
-            <Input
-              id="password"
-              type="password"
-              {...register("password")}
-              className={errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <Text variant="micro" className="text-red-500">{errors.password.message}</Text>
             )}
@@ -131,12 +147,25 @@ export function SignupForm() {
             <label htmlFor="confirmPassword" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Confirm Password
             </label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              {...register("confirmPassword")}
-              className={errors.confirmPassword ? "border-red-500 focus-visible:ring-red-500" : ""}
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                {...register("confirmPassword")}
+                className={`pr-10 ${errors.confirmPassword ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.confirmPassword && (
               <Text variant="micro" className="text-red-500">{errors.confirmPassword.message}</Text>
             )}

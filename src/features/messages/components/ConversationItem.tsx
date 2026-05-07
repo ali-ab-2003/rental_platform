@@ -25,8 +25,8 @@ export function ConversationItem({ conversation, isActive, currentUserId }: Conv
   return (
     <Link 
       href={`/messages/${conversation.id}`}
-      className={`block px-4 py-3 border-b border-border/50 hover:bg-muted/50 transition-colors ${
-        isActive ? "bg-muted/80" : "bg-transparent"
+      className={`block px-4 py-3 border-b border-border/50 hover:bg-muted/50 transition-all duration-200 border-l-2 ${
+        isActive ? "bg-muted/80 border-l-foreground" : "bg-transparent border-l-transparent"
       }`}
     >
       <div className="flex items-center space-x-3">

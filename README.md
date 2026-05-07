@@ -125,4 +125,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view your
 ---
 
 ## 📜 License
-Developed with 💖 by the **Haven Engineering Team**. All rights reserved.
+Developed by **Ali Abdullah**. All rights reserved.

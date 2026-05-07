@@ -1,29 +1,16 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import NextAuth from "next-auth";
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-  });
+import { authConfig } from "@/lib/auth.config";
 
-  const { pathname } = request.nextUrl;
-  const isLoggedIn = !!token;
+/**
+ * Middleware for route protection.
+ *
+ * Uses the edge-safe auth config (no Prisma, no bcryptjs).
+ * The `authorized` callback in auth.config.ts handles the logic.
+ */
+const { auth } = NextAuth(authConfig);
 
-  const isOnAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
-  const isProtectedRoute = pathname.startsWith("/messages");
-
-  if (isOnAuthPage && isLoggedIn) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  if (isProtectedRoute && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  return NextResponse.next();
-}
+export default auth;
 
 export const config = {
   // Run middleware on all routes except static files, images, and favicon

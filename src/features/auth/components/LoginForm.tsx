@@ -50,8 +50,7 @@ export function LoginForm() {
       });
 
       if (result.success) {
-        router.push("/");
-        router.refresh();
+        window.location.href = "/";
       } else {
         setError(result.error || "Invalid email or password");
       }

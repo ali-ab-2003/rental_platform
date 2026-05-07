@@ -57,8 +57,7 @@ export function SignupForm() {
       });
 
       if (result.success) {
-        router.push("/");
-        router.refresh();
+        window.location.href = "/";
       } else {
         setError(result.error || "An error occurred during sign up.");
       }

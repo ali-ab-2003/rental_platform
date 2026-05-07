@@ -13,7 +13,7 @@ export const authConfig = {
     // signUp is not a built-in Auth.js page, handled via custom route
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request: { nextUrl, method } }) {
       const isLoggedIn = !!auth?.user;
       const isOnAuthPage =
         nextUrl.pathname.startsWith("/login") ||
@@ -21,8 +21,9 @@ export const authConfig = {
       const isProtectedRoute =
         nextUrl.pathname.startsWith("/messages");
 
-      // Redirect authenticated users away from auth pages
-      if (isOnAuthPage && isLoggedIn) {
+      // Redirect authenticated users away from auth pages (only for GET requests)
+      // This prevents intercepting Server Action POST submissions during login/signup
+      if (isOnAuthPage && isLoggedIn && method === "GET") {
         return Response.redirect(new URL("/", nextUrl));
       }
 

@@ -2,6 +2,8 @@
 
 import { AuthError } from "next-auth";
 
+import { Prisma } from "@prisma/client";
+
 import { signIn } from "@/lib/auth";
 import { signUpSchema, type SignUpInput } from "@/lib/validations";
 import { userService } from "@/services";
@@ -18,8 +20,9 @@ type AuthActionResult = {
 /**
  * Server action: Register a new user.
  *
- * Validates input, checks for duplicate email, creates user,
- * and automatically signs them in.
+ * Validates input, creates user, and automatically signs them in.
+ * Relies on DB unique constraint (P2002) for duplicate email detection
+ * instead of a separate pre-check, making it race-condition safe.
  */
 export async function signUpAction(
   data: SignUpInput
@@ -36,17 +39,21 @@ export async function signUpAction(
 
     const { name, email, password } = parsed.data;
 
-    // Check if email is already registered
-    const exists = await userService.emailExists(email);
-    if (exists) {
-      return {
-        success: false,
-        error: "An account with this email already exists",
-      };
+    // Create the user — duplicate email is caught by P2002 below
+    try {
+      await userService.createUser({ name, email, password });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        return {
+          success: false,
+          error: "An account with this email already exists",
+        };
+      }
+      throw error;
     }
-
-    // Create the user
-    await userService.createUser({ name, email, password });
 
     // Auto sign-in after registration
     await signIn("credentials", {

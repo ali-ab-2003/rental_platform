@@ -105,9 +105,10 @@ model Listing {
 // ────────────────────────────────────────────────────────────
 
 model Conversation {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  canonicalKey String?  @unique // sorted participant IDs for 1:1 dedup (null for future group chats)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   participants ConversationParticipant[]
   messages     Message[]

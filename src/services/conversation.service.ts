@@ -1,8 +1,39 @@
+import { Prisma } from "@prisma/client";
+
 import { db } from "@/lib/db";
 import type {
   ConversationWithParticipants,
   PaginatedResponse,
 } from "@/types";
+
+/**
+ * Build a deterministic key for a 1:1 conversation.
+ * Sorting ensures both participants produce the same key regardless of order.
+ */
+function getCanonicalKey(userId: string, participantId: string): string {
+  return [userId, participantId].sort().join("_");
+}
+
+/** Shared include shape for conversation queries. */
+const conversationInclude = {
+  participants: {
+    include: {
+      user: {
+        select: { id: true, name: true, image: true },
+      },
+    },
+  },
+  messages: {
+    orderBy: { createdAt: "desc" },
+    take: 1,
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      senderId: true,
+    },
+  },
+} as const;
 
 // ────────────────────────────────────────────────────────────
 // Conversation Service
@@ -10,77 +41,51 @@ import type {
 
 /**
  * Find an existing 1:1 conversation between two users,
- * or create a new one. Prevents duplicate conversations.
+ * or create a new one. Race-condition safe via DB unique constraint
+ * on canonicalKey — concurrent creates are caught and re-read.
  */
 export async function findOrCreateConversation(
   userId: string,
   participantId: string
 ): Promise<ConversationWithParticipants> {
-  // Check for existing conversation between these two users
-  const existing = await db.conversation.findFirst({
-    where: {
-      AND: [
-        { participants: { some: { userId } } },
-        { participants: { some: { userId: participantId } } },
-      ],
-      participants: {
-        every: {
-          userId: { in: [userId, participantId] },
-        },
-      },
-    },
-    include: {
-      participants: {
-        include: {
-          user: {
-            select: { id: true, name: true, image: true },
-          },
-        },
-      },
-      messages: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
-          id: true,
-          content: true,
-          createdAt: true,
-          senderId: true,
-        },
-      },
-    },
+  const canonicalKey = getCanonicalKey(userId, participantId);
+
+  // Try to find existing conversation by canonical key
+  const existing = await db.conversation.findUnique({
+    where: { canonicalKey },
+    include: conversationInclude,
   });
 
   if (existing) return existing;
 
-  // Create new conversation with both participants
-  return db.conversation.create({
-    data: {
-      participants: {
-        createMany: {
-          data: [{ userId }, { userId: participantId }],
-        },
-      },
-    },
-    include: {
-      participants: {
-        include: {
-          user: {
-            select: { id: true, name: true, image: true },
+  // Try to create — if a concurrent request already created it,
+  // the unique constraint on canonicalKey will throw P2002
+  try {
+    return await db.conversation.create({
+      data: {
+        canonicalKey,
+        participants: {
+          createMany: {
+            data: [{ userId }, { userId: participantId }],
           },
         },
       },
-      messages: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
-          id: true,
-          content: true,
-          createdAt: true,
-          senderId: true,
-        },
-      },
-    },
-  });
+      include: conversationInclude,
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      // Race condition: another request created it first — re-read
+      const conversation = await db.conversation.findUnique({
+        where: { canonicalKey },
+        include: conversationInclude,
+      });
+      if (conversation) return conversation;
+    }
+    throw error;
+  }
 }
 
 /**
